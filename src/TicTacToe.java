@@ -27,16 +27,6 @@ public class TicTacToe {
 			game.setGameInterface(new ConsoleUI(game));
 		}
 		
-		// this could go too quickly and cause us to interact with the GUI
-		// before the GUI has been fully created. So, we need to sleep a bit
-		// here before we start playing the game.
-		// Ideally, we'd have some other wait/notification or active wait.
-		try {
-			Thread.sleep(500);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		
 		game.play();
 
 		console.close();
@@ -54,10 +44,11 @@ public class TicTacToe {
 		// start with two human Players
 		Player players[] = { new Player(gui, 1), new Player(gui, 2) } ;
 		
-		// TODO ask for count of games to train
-		// TODO show a progress bar in the UI
-		// TODO Do UI to get who goes first
-		// TODO Check to see which AI to create
+		// TODO Here are some possible things one could do:
+		// * ask for count of games to train
+		// * show a progress bar in the UI
+		// * Do UI to get who goes first
+		// * Check to see which AI to create
 		if (playerCount == 1) {
 			Player ai = (useGameTree ? GameTreeAI.getPlayer(gui, 1) : CupsAI.getPlayer(gui, 1));
 			ai.learn();
@@ -71,7 +62,6 @@ public class TicTacToe {
 			keepPlaying = gui.askPlayAgain(winner);
 		}
 		
-		// TODO: move to GUI
 		System.out.println("End of Session. Thanks for playing.");
 		System.exit(0);
 	}

@@ -33,6 +33,16 @@ public class SwingUI implements GameUserInterface {
 	  			ex.createFrame();
 	      }
 	    });
+	    
+		// while the EventDispatchThread gets user input, wait()
+		// this code runs on the Main thread
+		synchronized (ex.semaphore ) {
+			try {
+				ex.semaphore.wait();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}	
 	  }
 	
 	public void createFrame() {
@@ -52,6 +62,11 @@ public class SwingUI implements GameUserInterface {
 		frame.setLayout(new FlowLayout());		
 		frame.setSize(600, 400);
 		frame.setVisible(true);
+		
+		// tell the main thread that we are done creating our dialogs
+		synchronized (semaphore) {
+			semaphore.notify();
+		}
 	}
 
 
