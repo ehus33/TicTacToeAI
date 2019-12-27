@@ -2,8 +2,6 @@ import java.util.*;
 
 public class GameTreeAI extends Player {
 	
-	private Map<String, Node> treeNodes = new HashMap<String, Node>();
-	
 	private GameTreeAI(GameUserInterface gui, int num) {
 		super(gui, num);
 	}
