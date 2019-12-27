@@ -1,148 +1,98 @@
 import java.util.*;
 
-/**
- * There is an interesting question regarding how to consider draws: win or loss.
- * Furthermore, do we learn against a smart player or a dumb player?
- * 
- * 		| Smart	| Dumb
- * -------------------
- * Loss |   #1	| #2
- * -------------------
- * Win  | 	#3	| #4
- * -------------------
- * 
- * When we consider a Draw to be a WIN, then the AI will often defer an
- * immediate win in order to get the Draw.
- * 
- * When we have a Smart opponent, then the data at "dumb" locations is
- * sparse. 
- * 
- * Case #1: Best
- * 		This is the smartest AI. The opening move is heavily the center.
- * 		The AI may still deferred wins, but not in favor of draws.
- * 
- * Case #2: Not so great
- * 		The opening move is NOT the center.
- * 
- * Case #3: Not so great
- * 		We can have sparse data and the AI may gravitate toward draws
- * 		which can lead to some dumb decisions.
- * 
- * Case #4: Good
- * 		Opening move is the center.
- * 
- * @author jstride
- *
+/*
+ *  TODO: Student is to implement this class by adding
+ *  implementation as well as any additional methods necessary.
  */
 
 // This is the Artificial Intelligence that LEARNS!!
 public class CupsAI extends Player {
 
-	private static final boolean opponentSmart = true;
-	private static final boolean drawIsWin = false;
+	private boolean learning = false;
 	
-	private Map<String, Cup> cups = new HashMap<>();
-	
-	private static CupsAI learningAI = null;
-	
+	/**
+	 * This is a protected constructor which means that only
+	 * the CupsAI and derived classes can access it. This allows
+	 * us to control the creation of the AI object a bit more.
+	 * 
+	 * @param gui The GUI for the AI
+	 * @param num The player number (1 = X. 2 = O)
+	 */
 	protected CupsAI(GameUserInterface gui, int num) {
 		super(gui, num);
 	}
 	
 	/**
 	 * This encapsulate the creation of a Player AI.
-	 * This method allows us to create a learning AI and a "cheater" AI.
 	 * 
 	 * @param gui The GUI to use when playing
-	 * @param num The player number. 1 = X. 2 = O. 3 = dumb.
+	 * @param num The player number. 1 = X. 2 = O.
 	 * @return a Player that has artificial intelligence
 	 */
 	public static Player getPlayer(GameUserInterface gui, int num) {
-		
-		if (CupsAI.learningAI == null) {
-			// NO GUI for the learning AI
-			CupsAI.learningAI = new CupsAI(null, num);
-		}
-		
-		// create an AI that cheats off of us by reading our cups.
-		return new AIReader(gui, CupsAI.learningAI.cups);
+
+		return new CupsAI(gui, num);
 	}
 	
 	/**
-	 * Let's create a thread and have our learningAI run on that.
+	 * The AI should start and/or complete it's learning here.
 	 */
 	public void learn() {
+		// TODO: Student may want to change this implementation.
 		
-		if (CupsAI.learningAI == null) {
-			System.out.println("ERROR! There should be a learning AI");
-			return;
+		// create an opponent to play against
+		CupsAI[] aiPlayers = { this, new CupsAI(null, 2) };
+		
+		// temporarily set our learning flag to avoid a bunch of GUI output
+		// as we learn.
+		this.learning = true;
+		
+		// let's just play some games and learn
+		for (int games = 0; games < 2000; games++) {
+			TicTacToe.playGame(aiPlayers);
 		}
 		
-		// Here we have a thread to continually learn in the background!!
-		Thread thread = new Thread(new Runnable() {
-			public void run() {
-				System.out.println("Learning!");
-				int opponent = (CupsAI.opponentSmart ? 2 : 3);
-				CupsAI[] aiPlayers = { CupsAI.learningAI, new CupsAI(null, opponent) };
-						
-				// let's just play games and learn forever
-				for (;;) {
-					TicTacToe.playGame(aiPlayers);
-				}
-			}
-		});
-		
-		thread.start();
-		
-		// Sleep 1 second to allow the AI to learn for just a bit!
-		try {
-			Thread.sleep(1000);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		// reset out learning so that we can see the necessary GUI
+		this.learning = false;
 	}
 	
 	public String toString() {
 		return "The Artificial Intelligence";
 	}
 	
+	/**
+	* This is called at the end of the game. It tells the player
+	* who won the game.
+	* 
+	* @param winner represent who won the game. 1 = X. 2 = 0.
+	*/
 	public void tellPlayerResult(int winner) {
 		
-		// let's have a dumb AI. If playernum == 3, don't learn
-		if (getPlayerNum() == 3) {
-			return;
-		}
-		
-		// we need the cups to learn. Tell each cup that we won/lost
-		// get an iterator of our cups
-		boolean wonGame = (winner == getPlayerNum());
-		if (CupsAI.drawIsWin) {
-			// this will consider a draw (no winner) to be a win.
-			wonGame |= (winner == 0);
-		}
-		for (Map.Entry<String, Cup> entry : cups.entrySet()) {
-			entry.getValue().learn(wonGame);
-		}
+		// TODO: Student needs to implement this.
 	}
 	
+	/**
+	 * This is called by the game. An AI should attempt to figure
+	 * out a smart move and then display that move
+	 */
 	public Move getMove(Board board) {
-		String boardKey = board.toString();
-		Cup cup = cups.get(boardKey);
+		// TODO: Student needs to implement this to be smart.
 		
-		// if we don't already have this cup, add one.
-		if (cup == null) {
-			cup = new Cup(board);
-			cups.put(boardKey, cup);
+		// pick a random move from all that are available.
+		Move[] moves = board.getAllMoves();
+		int rand = (int) (Math.random() * moves.length);
+		
+		// show the move in the GUI, if we have one
+		// and we are not learning
+		if (getGui() != null && !this.learning) {
+			// show the move we made. We could add other output
+			// here to help with Testing and debugging.
+			System.out.println(" Move = " + moves[rand]);
+			
+			getGui().showAIMove(moves[rand]);			
 		}
 		
-		int answer = cup.getRandomMove();
-		
-		// never do a gui thingy. Don't display the move.
-		// we let the AIReader do that.
-		// we may be a dumb AI, so get the correct player number if we are dumb.
-		int player = (this.getPlayerNum() == 3 ? 2 : this.getPlayerNum());
-		
-		return new Move(answer / 3, answer % 3, player);
+		// return the move that the AI decided
+		return moves[rand];
 	}
 }

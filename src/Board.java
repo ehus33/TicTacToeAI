@@ -55,26 +55,55 @@ public class Board {
 		moves.add(move);
 	}
 	
+	/**
+	 * Returns true if the move is valid.
+	 * @param move The move to test.
+	 * @return true if valid.
+	 */
 	public boolean isValidMove(Move move) {
 		return board[move.getRow()][move.getCol()] == 0;
 	}
 	
+	/**
+	 * Gets the value of the board at the specific move location.
+	 * 
+	 * @param move provides the location of the board to test
+	 * @return 0 = empty. 1 = X. 2 = O.
+	 */
 	public int getBoardValue(Move move) {
 		return board[move.getRow()][move.getCol()];
 	}
 	
+	/**
+	 * Determines if the board is full of X's and O's.
+	 * @return true if the board is full.
+	 */
 	public boolean isBoardFull() {
 		return this.moves.size() == 0;
 	}
 	
 	/**
-	 * This gets all the moves. BUT, the client should not change the set
-	 * of moves. And the moves do not have the X/O correctly filled out.
-	 * 
+	 * This gets all the moves. 
+	 * We make copies of the moves to avoid clobbering the values.
+	 * We adjust the moves before giving out the
+	 * list so that they have all the correct X's and Oh values.
+	 *
+	 * 	0 = empty: no move
+	 * 	1 = X value
+	 * 	2 = O value
 	 * @return List of moves.
 	 */
-	public List<Move> getAllMoves() {
-		return moves;
+	public Move[] getAllMoves() {
+		Move[] result = new Move[this.moves.size()];
+		// adjust the move values to X or O
+		// X goes with 9 moves. O goes with 8 moves.
+		// X goes with odd moves. O goes with event moves.
+		int value = (moves.size() % 2 == 1 ? 1 : 2);
+		int index = 0;
+		for (Move move : moves) {
+			result[index++] = new Move(move.getRow(), move.getCol(), value);
+		}
+		return result;
 	}
 	
 	/**
